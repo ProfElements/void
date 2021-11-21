@@ -1,0 +1,16 @@
+[package]
+name = "void-gfx"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+default = ["text"]
+text = ["rusttype"]
+
+
+[dependencies]
+glam = { version = "0.20.0", features = ["libm"], default-features = false }
+libm = "0.2.1"
+rusttype = { version = "0.9.2", features = ["libm-math"], default-features = false, optional = true }

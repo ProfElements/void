@@ -1,4 +1,4 @@
-use crate::geometry::{Color, Vec2};
+use crate::{geometry::{Color, Vec2}, renderable::Renderable, renderer::Renderer};
 
 pub struct Line {
     pub start: Vec2,
@@ -15,5 +15,13 @@ impl Line {
             thickness,
             color,
         }
+    }
+}
+
+impl Renderable for Line {
+    fn render<R>(&self, renderer: &mut R) -> Result<(), R::Error>
+    where
+            R: Renderer {
+        renderer.render_line(&self)
     }
 }

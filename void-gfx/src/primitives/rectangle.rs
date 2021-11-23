@@ -1,4 +1,4 @@
-use crate::geometry::{Color, Vec2};
+use crate::{geometry::{Color, Vec2}, renderable::Renderable, renderer::Renderer};
 
 pub struct Rectangle {
     pub top_left: Vec2,
@@ -13,5 +13,13 @@ impl Rectangle {
             size,
             color,
         }
+    }
+}
+
+impl Renderable for Rectangle {
+    fn render<R>(&self, renderer: &mut R) -> Result<(), R::Error>
+    where
+            R: Renderer {
+        renderer.render_rectangle(&self)
     }
 }

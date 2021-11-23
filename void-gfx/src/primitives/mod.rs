@@ -16,7 +16,3 @@ pub use polyline::Polyline;
 pub use rectangle::Rectangle;
 pub use triangle::Triangle;
 
-pub trait Primitive {
-    fn outline(&self) -> Polyline;
-    fn bounds(&self) -> Rectangle;
-}

@@ -7,7 +7,7 @@ pub struct Rectangle {
 }
 
 impl Rectangle {
-    fn new(top_left: Vec2, size: Vec2, color: Color) -> Self {
+    pub fn new(top_left: Vec2, size: Vec2, color: Color) -> Self {
         Self {
             top_left,
             size,

@@ -8,7 +8,7 @@ pub struct Text {
 }
 
 impl Text {
-    fn new(top_left: Vec2, text: &'static str, px_size: f32, color: Color) -> Self {
+    pub fn new(top_left: Vec2, text: &'static str, px_size: f32, color: Color) -> Self {
         Self {
             top_left,
             text,

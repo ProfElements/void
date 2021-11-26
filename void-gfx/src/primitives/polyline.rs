@@ -6,7 +6,7 @@ pub struct Polyline<'a> {
 }
 
 impl<'a> Polyline<'a> {
-    fn new(vertices: &'a [Vec2], color: Color) -> Self {
+    pub fn new(vertices: &'a [Vec2], color: Color) -> Self {
         Self { vertices, color }
     }
 }

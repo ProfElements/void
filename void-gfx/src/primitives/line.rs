@@ -8,7 +8,7 @@ pub struct Line {
 }
 
 impl Line {
-    fn new(start: Vec2, end: Vec2, thickness: u16, color: Color) -> Self {
+    pub fn new(start: Vec2, end: Vec2, thickness: u16, color: Color) -> Self {
         Self {
             start,
             end,

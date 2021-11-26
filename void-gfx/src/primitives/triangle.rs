@@ -6,7 +6,7 @@ pub struct Triangle {
 }
 
 impl Triangle {
-    fn new(vertices: [Vec2; 3], color: Color) -> Self {
+    pub fn new(vertices: [Vec2; 3], color: Color) -> Self {
         Self { vertices, color }
     }
 }

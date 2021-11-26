@@ -114,6 +114,8 @@ pub trait Renderer {
     fn render_text(&mut self, text: &Text) -> Result<(), Self::Error> {
         use rusttype::{point, Font, Scale};
         let mut vertexes = Vec::new();
+        
+        const THRESHOLD: f32 = 0.2;
 
         let ttf = Font::try_from_bytes(include_bytes!("../assets/font.ttf")).unwrap();
         let scale = Scale::uniform(text.px_size);
@@ -126,7 +128,7 @@ pub trait Renderer {
         for glyph in glyphs {
             if let Some(bounding_box) = glyph.pixel_bounding_box() {
                 glyph.draw(|x, y, v| {
-                    if v != 0.0 {
+                    if v > THRESHOLD {
                         vertexes.push(Vertex::new_colored(
                             Vec2::new(
                                 text.top_left.x + x as f32 + bounding_box.min.x as f32,

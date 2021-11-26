@@ -2,4 +2,4 @@
 # Need void-fs, void-gfx, void-audio, void-input, and void itself
 
 members = ["void-gfx"]
-exclude = ["examples/*"]
+exclude = ["examples"]

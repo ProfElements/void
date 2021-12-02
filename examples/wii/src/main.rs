@@ -18,6 +18,11 @@ use void_gfx::{
 
 use crate::graphics::Image;
 
+#[derive(Copy, Clone)]
+#[repr(align(32))]
+pub struct Align32<T>(pub T);
+
+
 #[start]
 fn start(_argc: isize, _argv: *const *const u8) -> isize {
     main();
@@ -111,18 +116,21 @@ fn main() {
     );
     
     let pointer_bytes = include_bytes!("../assets/pointer.tpl");
+    
     let mut pointer_tpl = unsafe { core::mem::zeroed() };
     let mut pointer_obj = unsafe { core::mem::zeroed() };
+    let pointer_aligned = Align32(*pointer_bytes);
     unsafe { 
-        TPL_OpenTPLFromMemory(&mut pointer_tpl, pointer_bytes.as_ptr() as *mut c_void, pointer_bytes.len().try_into().unwrap());
-        TPL_GetTexture(&mut pointer_tpl, 0, &mut pointer_obj);
-    }   
-    let pointer_tex: Texture = pointer_obj.into(); 
-    let mut pointer = Image::new(Vec2::new(0.0, 0.0), Color::new(1.0, 1.0, 1.0, 1.0), pointer_tex); 
-
+        TPL_OpenTPLFromMemory(&mut pointer_tpl, pointer_aligned.0.as_ptr() as *mut c_void, pointer_aligned.0.len().try_into().unwrap());
+    }
+ 
     const TRI_SIZE: f32 = 64.0;
     const POLYLINE_SIZE: f32 = 16.0;
     'main_loop: loop {
+        unsafe { TPL_GetTexture(&mut pointer_tpl, 0, &mut pointer_obj); }
+        let pointer_tex: Texture = pointer_obj.into(); 
+        let mut pointer = Image::new(Vec2::new(0.0, 0.0), Color::new(1.0, 1.0, 1.0, 1.0), pointer_tex);    
+            
         Input::update(ControllerType::Gamecube);
         Input::update(ControllerType::Wii);
         wii.as_wpad().set_data_format(WPadDataFormat::ButtonsAccelIR);

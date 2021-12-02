@@ -2,6 +2,7 @@
 
 use core::{convert::Infallible, ffi::c_void, ptr::null_mut};
 
+use alloc::sync::Arc;
 use ogc_rs::{
     ffi::{
         GX_TG_MTX2x4, GX_CLIP_ENABLE, GX_CLR_RGBA, GX_COLOR0A0, GX_DIRECT, GX_F32, GX_GM_1_0,
@@ -247,7 +248,7 @@ impl IntoPrim for DrawHint {
 pub struct Image<'a> {
     pub top_left: Vec2,
     pub tint: Color,
-    pub texture: Texture<'a>
+    pub texture: Arc<Texture<'a>>
 }
 
 impl<'a> Image<'a> {
@@ -255,7 +256,7 @@ impl<'a> Image<'a> {
         Self {
             top_left,
             tint,
-            texture
+            texture: Arc::new(texture)
         }
     }
 }

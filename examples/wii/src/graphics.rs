@@ -45,6 +45,7 @@ impl Graphics {
         }
         Video::flush();
         Video::wait_vsync();
+        Video::wait_vsync();
 
         Gx::init(1024 * 256);
         Gx::set_copy_clear(GXColor::with_alpha(0, 0, 0, 0), GX_MAX_Z24);
@@ -189,6 +190,7 @@ impl Graphics {
             Gx::copy_disp(self.framebufs[self.framebuf_idx], true);
         }
         Video::flush();
+        Video::wait_vsync();
         Video::wait_vsync();
     }
 }

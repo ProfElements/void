@@ -6,6 +6,7 @@
     "env": "newlib",
     "executables": true,
     "has-elf-tls": false,
+    "exe-suffix": ".elf", 
     "has-rpath": true,
     "llvm-target": "powerpc-unknown-eabi",
     "linker": "powerpc-eabi-gcc",

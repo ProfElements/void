@@ -1,13 +1,12 @@
-
-
 use core::{convert::Infallible, ffi::c_void, ptr::null_mut};
 
 use alloc::sync::Arc;
 use ogc_rs::{
     ffi::{
         GX_TG_MTX2x4, GX_CLIP_ENABLE, GX_CLR_RGBA, GX_COLOR0A0, GX_DIRECT, GX_F32, GX_GM_1_0,
-        GX_IDENTITY, GX_MAX_Z24, GX_NONE, GX_PASSCLR, GX_PF_RGBA6_Z24, GX_PNMTX0, GX_POS_XY,
-        GX_RGBA8, GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_TEX_ST, GX_TG_TEX0, GX_VTXFMT0, GX_MODULATE,
+        GX_IDENTITY, GX_MAX_Z24, GX_MODULATE, GX_NONE, GX_PASSCLR, GX_PF_RGBA6_Z24, GX_PNMTX0,
+        GX_POS_XY, GX_RGBA8, GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_TEX_ST, GX_TG_TEX0,
+        GX_VTXFMT0,
     },
     mem_cached_to_uncached,
     prelude::Color as GXColor,
@@ -15,11 +14,10 @@ use ogc_rs::{
 };
 
 use void_gfx::{
-    geometry::{Vertex, Color, Vec2},
-    renderer::{DrawHint, Renderer}, renderable::Renderable,
+    geometry::{Color, Vec2, Vertex},
+    renderable::Renderable,
+    renderer::{DrawHint, Renderer},
 };
-
-
 
 pub struct Graphics {
     framebuf_idx: usize,
@@ -45,7 +43,6 @@ impl Graphics {
             Video::set_next_framebuffer(framebuffers[curr_fb]);
         }
         Video::flush();
-        Video::wait_vsync();
         Video::wait_vsync();
 
         Gx::init(1024 * 256);
@@ -192,7 +189,6 @@ impl Graphics {
         }
         Video::flush();
         Video::wait_vsync();
-        Video::wait_vsync();
     }
 }
 
@@ -248,7 +244,7 @@ impl IntoPrim for DrawHint {
 pub struct Image<'a> {
     pub top_left: Vec2,
     pub tint: Color,
-    pub texture: Arc<Texture<'a>>
+    pub texture: Arc<Texture<'a>>,
 }
 
 impl<'a> Image<'a> {
@@ -256,7 +252,7 @@ impl<'a> Image<'a> {
         Self {
             top_left,
             tint,
-            texture: Arc::new(texture)
+            texture: Arc::new(texture),
         }
     }
 }
@@ -264,32 +260,48 @@ impl<'a> Image<'a> {
 impl<'a> Renderable for Image<'a> {
     fn render<R>(&self, _renderer: &mut R) -> Result<(), R::Error>
     where
-            R: Renderer {
+        R: Renderer,
+    {
         Gx::load_texture(&self.texture, GX_TEXMAP0.try_into().unwrap());
-        
-        Gx::set_tev_op(GX_TEVSTAGE0.try_into().unwrap(), GX_MODULATE.try_into().unwrap());
+
+        Gx::set_tev_op(
+            GX_TEVSTAGE0.try_into().unwrap(),
+            GX_MODULATE.try_into().unwrap(),
+        );
         Gx::set_vtx_desc(VtxAttr::Tex0, GX_DIRECT.try_into().unwrap());
-        
+
         let color = self.tint.into_rgba8();
         Gx::begin(Primitive::Quads, GX_VTXFMT0.try_into().unwrap(), 4);
-        
+
         Gx::position_2f32(self.top_left.x, self.top_left.y);
         Gx::color_4u8(color[0], color[1], color[2], color[3]);
         Gx::tex_coord_2f32(0.0, 0.0);
-        
-        Gx::position_2f32(self.top_left.x + self.texture.width() as f32, self.top_left.y);
-        Gx::color_4u8(color[0], color[1], color[2], color[3]);
-        Gx::tex_coord_2f32(1.0, 0.0);         
 
-        Gx::position_2f32(self.top_left.x + self.texture.width() as f32, self.top_left.y + self.texture.height() as f32);
+        Gx::position_2f32(
+            self.top_left.x + self.texture.width() as f32,
+            self.top_left.y,
+        );
         Gx::color_4u8(color[0], color[1], color[2], color[3]);
-        Gx::tex_coord_2f32(1.0, 1.0);       
-        
-        Gx::position_2f32(self.top_left.x, self.top_left.y + self.texture.height() as f32);
+        Gx::tex_coord_2f32(1.0, 0.0);
+
+        Gx::position_2f32(
+            self.top_left.x + self.texture.width() as f32,
+            self.top_left.y + self.texture.height() as f32,
+        );
+        Gx::color_4u8(color[0], color[1], color[2], color[3]);
+        Gx::tex_coord_2f32(1.0, 1.0);
+
+        Gx::position_2f32(
+            self.top_left.x,
+            self.top_left.y + self.texture.height() as f32,
+        );
         Gx::color_4u8(color[0], color[1], color[2], color[3]);
         Gx::tex_coord_2f32(0.0, 1.0);
 
-        Gx::set_tev_op(GX_TEVSTAGE0.try_into().unwrap(), GX_PASSCLR.try_into().unwrap());
+        Gx::set_tev_op(
+            GX_TEVSTAGE0.try_into().unwrap(),
+            GX_PASSCLR.try_into().unwrap(),
+        );
         Gx::set_vtx_desc(VtxAttr::Tex0, GX_NONE.try_into().unwrap());
         Ok(())
     }

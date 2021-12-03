@@ -8,7 +8,10 @@ use core::ffi::c_void;
 
 use graphics::Graphics;
 
-use ogc_rs::{prelude::*, ffi::{TPL_OpenTPLFromMemory, TPL_GetTexture}};
+use ogc_rs::{
+    ffi::{TPL_GetTexture, TPL_OpenTPLFromMemory},
+    prelude::*,
+};
 
 use void_gfx::{
     geometry::{Color, Vec2},
@@ -21,7 +24,6 @@ use crate::graphics::Image;
 #[derive(Copy, Clone)]
 #[repr(align(32))]
 pub struct Align32<T>(pub T);
-
 
 #[start]
 fn start(_argc: isize, _argv: *const *const u8) -> isize {
@@ -114,26 +116,36 @@ fn main() {
         24.0,
         Color::new(0.0, 0.0, 0.0, 1.0),
     );
-    
+
     let pointer_bytes = include_bytes!("../assets/pointer.tpl");
-    
+
     let mut pointer_tpl = unsafe { core::mem::zeroed() };
     let mut pointer_obj = unsafe { core::mem::zeroed() };
     let pointer_aligned = Align32(*pointer_bytes);
-    unsafe { 
-        TPL_OpenTPLFromMemory(&mut pointer_tpl, pointer_aligned.0.as_ptr() as *mut c_void, pointer_aligned.0.len().try_into().unwrap());
+
+    unsafe {
+        TPL_OpenTPLFromMemory(
+            &mut pointer_tpl,
+            pointer_aligned.0.as_ptr() as *mut c_void,
+            pointer_aligned.0.len().try_into().unwrap(),
+        );
+        TPL_GetTexture(&mut pointer_tpl, 0, &mut pointer_obj);
     }
- 
+
+    let pointer_tex: Texture = pointer_obj.into();
+    let mut pointer = Image::new(
+        Vec2::new(0.0, 0.0),
+        Color::new(1.0, 1.0, 1.0, 1.0),
+        pointer_tex,
+    );
+
     const TRI_SIZE: f32 = 64.0;
     const POLYLINE_SIZE: f32 = 16.0;
     'main_loop: loop {
-        unsafe { TPL_GetTexture(&mut pointer_tpl, 0, &mut pointer_obj); }
-        let pointer_tex: Texture = pointer_obj.into(); 
-        let mut pointer = Image::new(Vec2::new(0.0, 0.0), Color::new(1.0, 1.0, 1.0, 1.0), pointer_tex);    
-            
         Input::update(ControllerType::Gamecube);
         Input::update(ControllerType::Wii);
-        wii.as_wpad().set_data_format(WPadDataFormat::ButtonsAccelIR);
+        wii.as_wpad()
+            .set_data_format(WPadDataFormat::ButtonsAccelIR);
 
         if gcn.is_button_down(Button::Start) {
             break 'main_loop;
@@ -162,12 +174,10 @@ fn main() {
         veri_line.render(&mut graphics).unwrap();
 
         hello_world.render(&mut graphics).unwrap();
-        
+
         pointer.top_left = Vec2::new(wii.as_wpad().ir().0, wii.as_wpad().ir().1);
         pointer.render(&mut graphics).unwrap();
 
         graphics.flush();
     }
 }
-
-

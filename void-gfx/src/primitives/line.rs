@@ -1,4 +1,10 @@
-use crate::{geometry::{Color, Vec2}, renderable::Renderable, renderer::Renderer};
+use crate::{
+    geometry::{Color, Vec2, Vertex},
+    renderable::Renderable,
+    renderer::{DrawHint, Renderer},
+};
+use alloc::vec;
+use alloc::vec::Vec;
 
 pub struct Line {
     pub start: Vec2,
@@ -21,7 +27,20 @@ impl Line {
 impl Renderable for Line {
     fn render<R>(&self, renderer: &mut R) -> Result<(), R::Error>
     where
-            R: Renderer {
-        renderer.render_line(&self)
+        R: Renderer,
+    {
+        let vertexes = self.build_vertices();
+        let draw_hint = self.get_draw_hint();
+        renderer.render_vertex_list(&vertexes, draw_hint)
+    }
+    fn build_vertices(&self) -> Vec<Vertex> {
+        vec![
+            Vertex::new_colored(self.start, self.color),
+            Vertex::new_colored(self.end, self.color),
+        ]
+    }
+
+    fn get_draw_hint(&self) -> DrawHint {
+        DrawHint::Lines
     }
 }

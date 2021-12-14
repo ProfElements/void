@@ -1,8 +1,8 @@
 mod ellipse;
 mod line;
 mod polyline;
-mod triangle;
 mod rectangle;
+mod triangle;
 
 #[cfg(feature = "text")]
 mod text;
@@ -15,4 +15,3 @@ pub use line::Line;
 pub use polyline::Polyline;
 pub use rectangle::Rectangle;
 pub use triangle::Triangle;
-

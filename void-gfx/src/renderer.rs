@@ -8,7 +8,7 @@ use crate::{
 };
 
 #[cfg(feature = "text")]
-use crate::{ geometry::Color, primitives::Text};
+use crate::{geometry::Color, primitives::Text};
 
 pub enum DrawHint {
     Points,
@@ -114,7 +114,7 @@ pub trait Renderer {
     fn render_text(&mut self, text: &Text) -> Result<(), Self::Error> {
         use rusttype::{point, Font, Scale};
         let mut vertexes = Vec::new();
-        
+
         const THRESHOLD: f32 = 0.2;
 
         let ttf = Font::try_from_bytes(include_bytes!("../assets/font.ttf")).unwrap();
@@ -142,9 +142,5 @@ pub trait Renderer {
         }
 
         self.render_vertex_list(&vertexes, DrawHint::Points)
-    }
-
-    fn render_img(&mut self, _img: &Self::Image) -> Result<(), Self::Error> {
-        unimplemented!("Setup your `Renderer::Image` and override this")
     }
 }

@@ -271,32 +271,20 @@ impl<'a> Renderable for Image<'a> {
         Gx::set_vtx_desc(VtxAttr::Tex0, GX_DIRECT.try_into().unwrap());
 
         let color = self.tint.into_rgba8();
-        Gx::begin(Primitive::Quads, GX_VTXFMT0.try_into().unwrap(), 4);
-
-        Gx::position_2f32(self.top_left.x, self.top_left.y);
-        Gx::color_4u8(color[0], color[1], color[2], color[3]);
-        Gx::tex_coord_2f32(0.0, 0.0);
-
-        Gx::position_2f32(
-            self.top_left.x + self.texture.width() as f32,
-            self.top_left.y,
+        let vertexes = self.build_vertices();
+        Gx::begin(
+            Primitive::Quads,
+            GX_VTXFMT0.try_into().unwrap(),
+            vertexes.len().try_into().unwrap(),
         );
-        Gx::color_4u8(color[0], color[1], color[2], color[3]);
-        Gx::tex_coord_2f32(1.0, 0.0);
 
-        Gx::position_2f32(
-            self.top_left.x + self.texture.width() as f32,
-            self.top_left.y + self.texture.height() as f32,
-        );
-        Gx::color_4u8(color[0], color[1], color[2], color[3]);
-        Gx::tex_coord_2f32(1.0, 1.0);
-
-        Gx::position_2f32(
-            self.top_left.x,
-            self.top_left.y + self.texture.height() as f32,
-        );
-        Gx::color_4u8(color[0], color[1], color[2], color[3]);
-        Gx::tex_coord_2f32(0.0, 1.0);
+        for vertex in vertexes {
+            Gx::position_2f32(vertex.pos.x, vertex.pos.y);
+            Gx::color_4u8(color[0], color[1], color[2], color[3]);
+            if let Some(uv) = vertex.uv {
+                Gx::tex_coord_2f32(uv.x, uv.y);
+            }
+        }
 
         Gx::set_tev_op(
             GX_TEVSTAGE0.try_into().unwrap(),
@@ -304,5 +292,47 @@ impl<'a> Renderable for Image<'a> {
         );
         Gx::set_vtx_desc(VtxAttr::Tex0, GX_NONE.try_into().unwrap());
         Ok(())
+    }
+
+    fn build_vertices(&self) -> Vec<Vertex> {
+        vec![
+            Vertex::new(
+                Vec2::new(self.top_left.x, self.top_left.y),
+                self.tint,
+                Some(0usize),
+                Some(Vec2::new(0.0, 0.0)),
+            ),
+            Vertex::new(
+                Vec2::new(
+                    self.top_left.x + self.texture.width() as f32,
+                    self.top_left.y,
+                ),
+                self.tint,
+                Some(0usize),
+                Some(Vec2::new(1.0, 0.0)),
+            ),
+            Vertex::new(
+                Vec2::new(
+                    self.top_left.x + self.texture.width() as f32,
+                    self.top_left.y + self.texture.height() as f32,
+                ),
+                self.tint,
+                Some(0usize),
+                Some(Vec2::new(1.0, 1.0)),
+            ),
+            Vertex::new(
+                Vec2::new(
+                    self.top_left.x,
+                    self.top_left.y + self.texture.height() as f32,
+                ),
+                self.tint,
+                Some(0usize),
+                Some(Vec2::new(0.0, 1.0)),
+            ),
+        ]
+    }
+
+    fn get_draw_hint(&self) -> DrawHint {
+        DrawHint::Quads
     }
 }

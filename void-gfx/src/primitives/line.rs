@@ -9,18 +9,12 @@ use alloc::vec::Vec;
 pub struct Line {
     pub start: Vec2,
     pub end: Vec2,
-    pub thickness: u16,
     pub color: Color,
 }
 
 impl Line {
-    pub fn new(start: Vec2, end: Vec2, thickness: u16, color: Color) -> Self {
-        Self {
-            start,
-            end,
-            thickness,
-            color,
-        }
+    pub fn new(start: Vec2, end: Vec2, color: Color) -> Self {
+        Self { start, end, color }
     }
 }
 

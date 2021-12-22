@@ -36,7 +36,7 @@ impl Graphics {
         framebuffers[1] =
             mem_cached_to_uncached!(System::allocate_framebuffer(&video.render_config));
 
-        Console::init(&video);
+        //Console::init(&video);
         Video::configure(&video.render_config);
 
         unsafe {

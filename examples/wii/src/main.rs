@@ -3,26 +3,28 @@
 
 extern crate alloc;
 
-mod graphics;
 use core::ffi::c_void;
 
-use graphics::Graphics;
+mod graphics;
+use graphics::{Graphics, Image};
+
+mod audio;
+use audio::Audio;
 
 use ogc_rs::{
     ffi::{TPL_GetTexture, TPL_OpenTPLFromMemory},
     prelude::*,
 };
 
+use void_audio::{AudioFormat, AudioFrequency, AudioOptions, AudioPlayer};
 use void_gfx::{
     geometry::{Color, Vec2},
     primitives::{Ellipse, Line, Polyline, Rectangle, Text, Triangle},
     renderable::Renderable,
 };
 
-use crate::graphics::Image;
-
 #[derive(Copy, Clone)]
-#[repr(align(32))]
+#[repr(C, align(32))]
 pub struct Align32<T>(pub T);
 
 #[start]
@@ -33,15 +35,19 @@ fn start(_argc: isize, _argv: *const *const u8) -> isize {
 
 fn main() {
     let mut graphics = Graphics::new();
+    let audio = Audio::new();
+    let mut select =
+        ogc_rs::utils::alloc_aligned_buffer(include_bytes!("../assets/select.pcm.raw"));
 
     Input::init(ControllerType::Gamecube);
     Input::init(ControllerType::Wii);
 
     let gcn = Input::new(ControllerType::Gamecube, ControllerPort::One);
     let wii = Input::new(ControllerType::Wii, ControllerPort::One);
+    wii.as_wpad()
+        .set_data_format(WPadDataFormat::ButtonsAccelIR);
 
     println!("Hello, World");
-
     let background_rect = Rectangle::new(
         Vec2::new(0.0, 0.0),
         Vec2::new(640.0, 480.0),
@@ -122,7 +128,6 @@ fn main() {
     let mut pointer_tpl = unsafe { core::mem::zeroed() };
     let mut pointer_obj = unsafe { core::mem::zeroed() };
     let pointer_aligned = Align32(*pointer_bytes);
-
     unsafe {
         TPL_OpenTPLFromMemory(
             &mut pointer_tpl,
@@ -144,8 +149,6 @@ fn main() {
     'main_loop: loop {
         Input::update(ControllerType::Gamecube);
         Input::update(ControllerType::Wii);
-        wii.as_wpad()
-            .set_data_format(WPadDataFormat::ButtonsAccelIR);
 
         if gcn.is_button_down(Button::Start) {
             break 'main_loop;
@@ -153,6 +156,20 @@ fn main() {
 
         if wii.is_button_down(Button::Home) {
             break 'main_loop;
+        }
+
+        if wii.is_button_down(Button::A) {
+            audio
+                .play_pcm_buffer(
+                    AudioOptions::new()
+                        .format(AudioFormat::Mono16BitLe)
+                        .frequency(AudioFrequency::FourtyFourOneHz)
+                        .volume((1.0, 1.0)),
+                    0,
+                    &mut select,
+                )
+                .unwrap();
+            //audio.play_buffer(VoiceFormat::Mono16BitLE, 44100, (155, 155), &mut select);
         }
 
         background_rect.render(&mut graphics).unwrap();

@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 ogc-rs = { path = "../../../ogc-rs", features = ["ffi"] }
 void-gfx = { path = "../../void-gfx" }
+void-audio = { path = "../../void-audio" }

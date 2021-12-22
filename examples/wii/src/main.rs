@@ -16,7 +16,7 @@ use ogc_rs::{
     prelude::*,
 };
 
-use void_audio::{AudioFormat, AudioFrequency, AudioOptions, AudioPlayer};
+use void_audio::player::{AudioPlayer,AudioFormat, AudioFrequency, AudioOptions};
 use void_gfx::{
     geometry::{Color, Vec2},
     primitives::{Ellipse, Line, Polyline, Rectangle, Text, Triangle},
@@ -61,15 +61,13 @@ fn main() {
 
     let hori_line = Line::new(
         Vec2::new(640.0 / 2.0 - 128.0, 480.0 / 2.0),
-        Vec2::new(640.0 / 2.0 + 128.0, 480.0 / 2.0),
-        1,
+        Vec2::new(640.0 / 2.0 + 128.0, 480.0 / 2.0), 
         Color::new(1.0, 0.0, 1.0, 1.0),
     );
 
     let veri_line = Line::new(
         Vec2::new(640.0 / 2.0, 480.0 / 2.0 - 128.0),
         Vec2::new(640.0 / 2.0, 480.0 / 2.0 + 128.0),
-        1,
         Color::new(1.0, 0.0, 1.0, 1.0),
     );
 

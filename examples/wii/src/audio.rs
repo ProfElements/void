@@ -2,9 +2,7 @@ use ogc_rs::{
     asnd::{Asnd, VoiceFormat, VoiceOptions},
     OgcError,
 };
-use void_audio::{AudioFormat, AudioFrequency};
-
-use void_audio::AudioPlayer;
+use void_audio::player::{AudioPlayer, AudioOptions, AudioFrequency, AudioFormat};
 
 pub struct Audio {
     _asnd: Asnd,
@@ -34,7 +32,7 @@ impl AudioPlayer for Audio {
     type Error = OgcError;
     fn play_pcm_buffer(
         &self,
-        opts: void_audio::AudioOptions,
+        opts: AudioOptions,
         _delay: u32,
         buffer: &mut [u8],
     ) -> Result<(), Self::Error> {
